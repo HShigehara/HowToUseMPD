@@ -1,0 +1,117 @@
+\documentclass[11pt,a4paper]{jsarticle}
+%
+\usepackage{amsmath,amssymb}
+\usepackage{bm}
+\usepackage{graphicx}
+\usepackage{ascmac}
+%
+\setlength{\textwidth}{\fullwidth}
+\setlength{\textheight}{40\baselineskip}
+\addtolength{\textheight}{\topskip}
+\setlength{\voffset}{-0.2in}
+\setlength{\topmargin}{0pt}
+\setlength{\headheight}{0pt}
+\setlength{\headsep}{0pt}
+%
+\newcommand{\divergence}{\mathrm{div}\,}  %ダイバージェンス
+\newcommand{\grad}{\mathrm{grad}\,}  %グラディエント
+\newcommand{\rot}{\mathrm{rot}\,}  %ローテーション
+%
+\title{MPDの使い方}
+%\author{繁原浩亮}
+\date{\today}
+\begin{document}
+\maketitle
+%
+%
+\section{MPDとは}
+Music Player Daemon(ミュージック・プレイヤー・デーモン)はLinuxや各種UNIX上で動作する、音楽再生やプレイリスト管理を行う為のデーモン。よくMPDと略される。ローカルホストだけではなくネットワーク上のディレクトリにある楽曲も再生可能。
+MPD自体は単なるデーモンなので、通常はMPDクライアントと呼ばれるフロントエンド・アプリケーションと併用される。(単体での使用もまったく不可能ではないが、音楽再生アプリケーションとして使用するには非現実的である)
+2008年現在、コンソール上で動作する最低限の機能だけを備えたCLIアプリケーションから、AmarokやRhythmboxに似た多数の機能を備えたものまで多種多様なMPDクライアントが開発されている。\footnote{http://ja.wikipedia.org/wiki/Music\_Player\_Daemon}
+
+\section{MPDサーバーの設定}
+\subsection{MPDのインストール}
+サーバー側のPCにMPDをインストールする。
+UbuntuなどのDebian系のディストリビューションの場合は、"Ubuntuソフトウェアセンター"または"Synaptic"で"MPD"と検索してインストール。
+
+\subsection{MPDの設定}
+
+\subsubsection{mpd.confの設定}
+"/etc/mpd.conf"がMPDの設定ファイルなので、これを編集する。
+
+\begin{itembox}[l]{コマンド}
+\$ cd /etc/ "ディレクトリ移動\\
+\$ sudo vim mpd.conf
+\end{itembox}
+
+◯◯行目の~~を編集
+
+\subsection{音楽データが保存されているディレクトリへのシンボリックリンクを作成}
+音楽データの保存先はデフォルトで"/var/lib/mpd/music"になっている。そこから"/home/ユーザ名/Music/"にアクセスできるようにシンボリックリンクを作成する。
+
+\begin{itembox}[l]{コマンド}
+\$ cd /var/lib/mpd/music/ "ディレクトリ移動\\
+\$ sudo ln -s /home/ユーザ名/Music/ Music "シンボリックリンクの作成
+\end{itembox}
+
+\subsection{作成したシンボリックリンクに対してアクセス権を変更する}
+デフォルトでは、音楽データが保存されているディレクトリにアクセスできない。そのため、音楽データが保存されているディレクトリにアクセス権を付加する。
+
+\begin{itembox}[l]{コマンド}
+\$ sudo chmod -R 755 Music "シンボリックリンク"Music"に対してアクセス権を付加
+\end{itembox}
+
+これで、音楽データが保存されているディレクトリにアクセスできるようになる。
+\subsection{MPDの再起動}
+MPDを再起動する。\\
+
+\begin{itembox}[l]{コマンド}
+\$ sudo /etc/init.d/mpd restart "MPDの再起動
+\end{itembox}
+
+\section{MPDクライアントの設定}
+\subsection{クライアントソフトのインストール}
+MPDクライアントソフトをインストールする。
+\subsubsection{UbuntuなどのDebian系のディストリビューションの場合}
+"Ario"がおすすめ。"Ubuntuソフトウェアセンター"または"Synaptic"で"Ario"と検索してインストール。
+\subsubsection{Windowsの場合}
+"Auremo"がおすすめ。"https://code.google.com/p/auremo/downloads/list"から"	Auremo-バージョン名-installer.exe"というファイル名のものをダウンロードしインストールする。
+\subsection{基本操作}
+どのソフトにもサーバーにアクセスするためにIPアドレスを入力する欄がある。そこに、サーバーのIPアドレスを入力すれば、サーバーの音楽データが保存されているディレクトリにアクセスできるようになる。
+
+\section{曲データの転送}
+現在の設定では、自分が用意した音楽データをサーバーPCに保存しておく必要がある。USBメモリなどを利用してサーバーPCの音楽データを保存しているディレクトリ(/home/ユーザ名/Music/)に保存しても良いが、サーバーPCではsshが利用できるので、クライアントソフトを利用して、ネットワーク越しにデータを転送する方が良い。
+\subsection{クライアントソフトのインストール}
+\subsubsection{UbuntuなどのDebian系のディストリビューションの場合}
+"FileZilla"がおすすめ。"Ubuntuソフトウェアセンター"または"Synaptic"で"FileZilla"と検索してインストール。
+\subsubsection{Windowsの場合}
+"WinSCP"がおすすめ。
+"http://www.forest.impress.co.jp/library/software/winscp/"などからダウンロードしてインストールする。
+\subsection{接続方法}
+"転送プロトコル"に"SFTP"を、"サーバー"にサーバーPCのIPアドレスを、"ユーザー"と"パスワード"に"music"を入力する。
+WinSCPの場合、日本語のファイルでは文字化けとなったり、転送しても認識されなかったりするので、"設定"から"文字コードをUTF-8にする"という項目をオンにする。
+\subsection{転送方法}
+ログインを押すと左側に自分のPCのディレクトリ、右側にサーバーPCのディレクトリが表示される。左側の画面から転送したい音楽データを選択し、右側の音楽データを保存しているディレクトリにドラッグ・アンド・ドロップする。
+
+\section{その他}
+\subsection{外部HDDのマウント方法}
+外部HDDは、PC起動時に自動でマウントできるようにしておくと便利です。
+\subsubsection{外部HDDのMusicディレクトリをホームのMusicにマウントする}
+外部HDDのMusicディレクトリをホームのMusicディレクトリにマウントします。これには、root権限で、"/etc/fstab"を編集します。
+\begin{itembox}[l]{コマンド}
+\$ sudo vim /etc/fstab "fstabの編集
+\end{itembox}
+最後ぐらいに以下を追加します。\\
+\linebreak
+/dev/sda4 /home/shige/Music vfat rw,iocharset=utf8 0 0\\
+\linebreak
+最初の/dev/sda4は音楽ファイルが保存されているHDD、/home/shige/Musicはマウント先、vfatはfat32形式を表しており、rw,iocharset=utf8はオプションでiocharset=utf8は記述しないと日本語が文字化けするので必ず記述するようにしてください。 0 0はとりあえず記述しておいてください。
+\begin{itembox}[l]{コマンド}
+\$ sudo mount -a
+\end{itembox}
+を実行し、ホームのMusicディレクトリに外部HDDのMusicディレクトリがマウントされていればOKです。その後、/home/shige/Musicに対するシンボリックを/var/lib/mpd/music/に作成し、作成したシンボリックに対して、権限を付加してください。
+\subsection{DHCPで利用する際に便利な方法}
+IPアドレスを自動で取得するDHCPでは、起動してインターネットに接続するごとにIPアドレスが変わってしまうことがある。しかし、そこでavahi-daemonという仕組みを利用することで、IPアドレスではなく、名前でアクセスすることが可能となる。詳しくはこちら→http://gitter.matrix.jp/voyage-mpd-main/tips-for-voyage-mpd/zeroconf-setting-of-voyage-mpd-using-avahi/
+%
+%
+\end{document}
